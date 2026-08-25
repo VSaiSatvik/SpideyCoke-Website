@@ -117,6 +117,49 @@
   }
 
   // ------------------------------------------------------------------
+  // Can 3D tilt: rotates toward the cursor for a real pop-off-the-page
+  // feel, with a bounded angle range so it never flips unnaturally.
+  // ------------------------------------------------------------------
+  var canStage = document.getElementById("canStage");
+  var can = document.getElementById("can");
+
+  if (canStage && can && !reduceMotion) {
+    canStage.addEventListener("mousemove", function (e) {
+      var rect = canStage.getBoundingClientRect();
+      var px = (e.clientX - rect.left) / rect.width;   // 0..1
+      var py = (e.clientY - rect.top) / rect.height;   // 0..1
+      var rotY = clamp((px - 0.5) * 22, -11, 11);
+      var rotX = clamp((0.5 - py) * 14, -7, 7);
+      can.style.transform =
+        "rotate(-6deg) rotateY(" + rotY + "deg) rotateX(" + rotX + "deg)";
+    });
+    canStage.addEventListener("mouseleave", function () {
+      can.style.transform = "rotate(-6deg) rotateY(0deg) rotateX(0deg)";
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Scroll-reveal: fade + lift elements once as they enter the viewport.
+  // ------------------------------------------------------------------
+  var revealEls = document.querySelectorAll(".reveal");
+  if (revealEls.length && "IntersectionObserver" in window) {
+    var revealObserver = new IntersectionObserver(
+      function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+    );
+    revealEls.forEach(function (el) { revealObserver.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add("is-visible"); });
+  }
+
+  // ------------------------------------------------------------------
   // Smooth-scroll active-state highlight for nav links (progressive
   // enhancement only, no dependency for basic navigation).
   // ------------------------------------------------------------------
