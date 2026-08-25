@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crimson Cola — Web-Slinger Edition</title>
+<meta name="description" content="Crimson Cola: the fizz that swings. A city-inspired soda with a web-slinging mascot.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Ambient background layers -->
+<div class="bg-city" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<!-- The web thread + hero mascot, tracks scroll -->
+<svg id="webLine" aria-hidden="true">
+  <path id="webPath" d="M0,0 L0,0" />
+</svg>
+
+<div id="hero-mascot" aria-hidden="true">
+  <div class="msk-figure">
+    <svg viewBox="0 0 120 180" width="90" height="135">
+      <ellipse class="msk-shadow" cx="60" cy="172" rx="26" ry="6"></ellipse>
+      <!-- legs / arms -->
+      <path class="msk-limb" d="M60 70 C 30 78, 14 100, 10 132" />
+      <path class="msk-limb" d="M60 70 C 90 78, 106 100, 110 132" />
+      <path class="msk-limb" d="M60 96 C 40 110, 30 130, 34 158" />
+      <path class="msk-limb" d="M60 96 C 80 110, 90 130, 86 158" />
+      <!-- torso -->
+      <path class="msk-body" d="M60 40 C 40 40, 34 62, 38 84 C 42 104, 78 104, 82 84 C 86 62, 80 40, 60 40 Z" />
+      <!-- web pattern on torso -->
+      <g class="msk-web-pattern">
+        <path d="M60 44 L60 100 M45 50 L60 68 L75 50 M40 68 L60 74 L80 68 M43 88 L60 80 L77 88" />
+      </g>
+      <!-- head -->
+      <circle class="msk-head" cx="60" cy="24" r="20" />
+      <path class="msk-head-web" d="M60 4 L60 44 M40 24 L80 24 M46 8 L74 40 M74 8 L46 40" />
+      <!-- eyes -->
+      <path class="msk-eye" d="M44 20 C 48 12, 58 12, 60 20 C 58 26, 48 26, 44 20 Z" />
+      <path class="msk-eye" d="M76 20 C 72 12, 62 12, 60 20 C 62 26, 72 26, 76 20 Z" />
+    </svg>
+  </div>
+</div>
+
+<!-- Nav -->
+<header class="nav">
+  <a class="brand" href="#top">
+    <span class="brand-mark">CRIMSON</span><span class="brand-mark brand-mark--script">Cola</span>
+  </a>
+  <nav class="nav-links">
+    <a href="#flavors">Flavors</a>
+    <a href="#story">Origin</a>
+    <a href="#swing">The Swing</a>
+    <a href="#find">Find It</a>
+  </nav>
+  <a class="nav-cta" href="#find">Grab a Can</a>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Uptown fizz, downtown taste</p>
+      <h1>Refreshment<br>that <em>swings</em> in.</h1>
+      <p class="hero-sub">Bold cola. Sharp citrus snap. Bottled for the ones who take the long way down, one rooftop at a time.</p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="#flavors">Explore Flavors</a>
+        <a class="btn btn--ghost" href="#swing">Watch Him Swing ↓</a>
+      </div>
+    </div>
+    <div class="hero-can">
+      <div class="can">
+        <div class="can-top"></div>
+        <div class="can-body">
+          <span class="can-brand">CRIMSON</span>
+          <span class="can-brand can-brand--script">Cola</span>
+          <div class="can-web-etch"></div>
+        </div>
+        <div class="can-bottom"></div>
+      </div>
+      <div class="fizz" id="fizz"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>WEB-SLUNG FRESH</span><span>•</span>
+      <span>ZERO SUGAR CRAWL</span><span>•</span>
+      <span>ROOFTOP COOLED</span><span>•</span>
+      <span>SWING BY SWING</span><span>•</span>
+      <span>WEB-SLUNG FRESH</span><span>•</span>
+      <span>ZERO SUGAR CRAWL</span><span>•</span>
+      <span>ROOFTOP COOLED</span><span>•</span>
+      <span>SWING BY SWING</span><span>•</span>
+    </div>
+  </div>
+
+  <!-- STORY -->
+  <section class="story" id="story">
+    <div class="story-visual">
+      <div class="skyline" aria-hidden="true">
+        <div class="building b1"></div>
+        <div class="building b2"></div>
+        <div class="building b3"></div>
+        <div class="building b4"></div>
+        <div class="building b5"></div>
+      </div>
+      <div class="story-web-strand" aria-hidden="true"></div>
+    </div>
+    <div class="story-copy">
+      <p class="eyebrow">Origin</p>
+      <h2>Brewed on the 40th floor.</h2>
+      <p>Crimson Cola started as a rooftop experiment: real cane sugar, a hit of blood orange, and just enough carbonation to keep pace with a city that never really lands. The can is built for one hand, because your other hand is usually busy holding onto something eighty stories up.</p>
+      <p>Every batch is cooled in the shade of a water tower and shipped down before sunrise, block by block, the same way it's always been done here.</p>
+    </div>
+  </section>
+
+  <!-- SWING / interactive scroll section -->
+  <section class="swing" id="swing">
+    <p class="eyebrow eyebrow--light">The Swing</p>
+    <h2 class="swing-title">He's already on his way down.</h2>
+    <p class="swing-sub">Keep scrolling. The thread gets longer, the city gets closer, and somewhere around the third flavor card, he lands.</p>
+    <div class="swing-track" aria-hidden="true">
+      <div class="swing-dot"></div>
+      <div class="swing-dot"></div>
+      <div class="swing-dot"></div>
+    </div>
+  </section>
+
+  <!-- FLAVORS -->
+  <section class="flavors" id="flavors">
+    <p class="eyebrow">Lineup</p>
+    <h2>Four flavors. One skyline.</h2>
+    <div class="flavor-grid">
+      <article class="flavor-card fc--classic">
+        <div class="flavor-tag">No. 01</div>
+        <h3>Classic Crimson</h3>
+        <p>The original rooftop recipe. Cane sugar, cola nut, a whisper of citrus peel.</p>
+      </article>
+      <article class="flavor-card fc--zero">
+        <div class="flavor-tag">No. 02</div>
+        <h3>Midnight Zero</h3>
+        <p>All the snap, none of the sugar. Built for the late patrol.</p>
+      </article>
+      <article class="flavor-card fc--orange">
+        <div class="flavor-tag">No. 03</div>
+        <h3>Blood Orange Sting</h3>
+        <p>A sharper citrus edge, cut with real blood orange juice.</p>
+      </article>
+      <article class="flavor-card fc--lime">
+        <div class="flavor-tag">No. 04</div>
+        <h3>Alley Lime</h3>
+        <p>Tart lime and a cooler finish. Best served straight off the fire escape.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- GALLERY / bento -->
+  <section class="bento" id="gallery">
+    <p class="eyebrow">Around Town</p>
+    <h2>Spotted on the way down.</h2>
+    <div class="bento-grid">
+      <div class="bento-cell bc-1">
+        <span class="bc-label">Rooftop Vending</span>
+        <p>Cold cans, forty floors up, no elevator required.</p>
+      </div>
+      <div class="bento-cell bc-2">
+        <span class="bc-label">Corner Store Crate</span>
+        <p>Stacked fresh every morning before the trains start running.</p>
+      </div>
+      <div class="bento-cell bc-3">
+        <span class="bc-label">Alleyway Cooler</span>
+        <p>The unofficial break spot between patrols.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="quote-section">
+    <blockquote>
+      <p>"Cracked one open mid-swing. Didn't spill a drop. That's the whole pitch."</p>
+      <cite>Neighborhood Regular, Queens</cite>
+    </blockquote>
+  </section>
+
+  <!-- FIND IT / CTA -->
+  <section class="find" id="find">
+    <div class="find-inner">
+      <p class="eyebrow eyebrow--light">Find It</p>
+      <h2>Available wherever the city gets thirsty.</h2>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="#top">Back to the Top</a>
+        <a class="btn btn--ghost" href="#flavors">See Flavors Again</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-web" aria-hidden="true"></div>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="brand-mark">CRIMSON</span><span class="brand-mark brand-mark--script">Cola</span>
+    </div>
+    <p class="footer-note">An independent, fan-made concept brand and mascot. Not affiliated with any existing beverage company or comic publisher.</p>
+    <p class="footer-copy">© 2026 Crimson Cola Co.</p>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>
