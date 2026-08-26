@@ -91,6 +91,119 @@
   render();
 
   // ------------------------------------------------------------------
+  // Scroll progress bar.
+  // ------------------------------------------------------------------
+  var scrollProgress = document.getElementById("scrollProgress");
+  function updateProgress() {
+    if (!scrollProgress) return;
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var frac = max > 0 ? clamp(window.scrollY / max, 0, 1) : 0;
+    scrollProgress.style.transform = "scaleX(" + frac + ")";
+  }
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  window.addEventListener("resize", updateProgress);
+  updateProgress();
+
+  // ------------------------------------------------------------------
+  // Dark / light theme toggle, persisted to localStorage.
+  // ------------------------------------------------------------------
+  var themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    function currentTheme() {
+      return document.documentElement.getAttribute("data-theme") || "light";
+    }
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      themeToggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      themeToggle.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      );
+      try { localStorage.setItem("crimson-theme", theme); } catch (e) {}
+    }
+    applyTheme(currentTheme());
+    themeToggle.addEventListener("click", function () {
+      applyTheme(currentTheme() === "dark" ? "light" : "dark");
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Mobile nav: hamburger toggle, close on link click / outside / Escape.
+  // ------------------------------------------------------------------
+  var navBurger = document.getElementById("navBurger");
+  var mobileNav = document.getElementById("mobileNav");
+  if (navBurger && mobileNav) {
+    function closeMobileNav() {
+      mobileNav.hidden = true;
+      navBurger.setAttribute("aria-expanded", "false");
+      navBurger.setAttribute("aria-label", "Open menu");
+    }
+    function openMobileNav() {
+      mobileNav.hidden = false;
+      navBurger.setAttribute("aria-expanded", "true");
+      navBurger.setAttribute("aria-label", "Close menu");
+    }
+    navBurger.addEventListener("click", function () {
+      if (mobileNav.hidden) openMobileNav(); else closeMobileNav();
+    });
+    mobileNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", closeMobileNav);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeMobileNav();
+    });
+    document.addEventListener("click", function (e) {
+      if (!mobileNav.hidden && !mobileNav.contains(e.target) && e.target !== navBurger) {
+        closeMobileNav();
+      }
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 760) closeMobileNav();
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Back-to-top button.
+  // ------------------------------------------------------------------
+  var backToTop = document.getElementById("backToTop");
+  if (backToTop) {
+    window.addEventListener("scroll", function () {
+      backToTop.classList.toggle("is-visible", window.scrollY > window.innerHeight);
+    }, { passive: true });
+    backToTop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Cursor-follow ambient glow (desktop / mouse only).
+  // ------------------------------------------------------------------
+  var cursorGlow = document.getElementById("cursorGlow");
+  if (cursorGlow && !reduceMotion && window.matchMedia("(hover: hover)").matches) {
+    window.addEventListener("mousemove", function (e) {
+      cursorGlow.style.transform =
+        "translate(" + e.clientX + "px, " + e.clientY + "px)";
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Twinkling hero sparks, generated once at random positions.
+  // ------------------------------------------------------------------
+  var bgSparks = document.getElementById("bgSparks");
+  if (bgSparks && !reduceMotion) {
+    for (var s = 0; s < 14; s++) {
+      var spark = document.createElement("span");
+      spark.className = "spark";
+      spark.style.top = Math.random() * 90 + "%";
+      spark.style.left = Math.random() * 100 + "%";
+      spark.style.animationDelay = (Math.random() * 3.4) + "s";
+      spark.style.animationDuration = (2.6 + Math.random() * 2.4) + "s";
+      bgSparks.appendChild(spark);
+    }
+  }
+
+  // ------------------------------------------------------------------
   // Fizz bubbles: a few extra randomly-timed bubbles for the hero can.
   // ------------------------------------------------------------------
   var fizz = document.getElementById("fizz");
@@ -136,6 +249,78 @@
     canStage.addEventListener("mouseleave", function () {
       can.style.transform = "rotate(-6deg) rotateY(0deg) rotateX(0deg)";
     });
+  }
+
+  // Click the can: a satisfying shake + a burst of extra fizz bubbles.
+  if (can) {
+    can.addEventListener("click", function () {
+      if (can.classList.contains("is-shaking")) return;
+      can.classList.add("is-shaking");
+      setTimeout(function () { can.classList.remove("is-shaking"); }, 600);
+
+      var fizzEl = document.getElementById("fizz");
+      if (fizzEl && !reduceMotion) {
+        for (var b = 0; b < 8; b++) {
+          var bubble = document.createElement("span");
+          var size = 3 + Math.random() * 6;
+          bubble.style.position = "absolute";
+          bubble.style.left = (Math.random() * 50 - 25) + "px";
+          bubble.style.bottom = "0";
+          bubble.style.width = size + "px";
+          bubble.style.height = size + "px";
+          bubble.style.borderRadius = "50%";
+          bubble.style.background = "rgba(255,255,255,0.75)";
+          bubble.style.animation =
+            "bubble-rise " + (1.6 + Math.random()) + "s ease-out forwards";
+          fizzEl.appendChild(bubble);
+          (function (el) {
+            setTimeout(function () { el.remove(); }, 3000);
+          })(bubble);
+        }
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Testimonial carousel: auto-advances, with manual dot controls.
+  // ------------------------------------------------------------------
+  var slides = document.querySelectorAll(".quote-slide");
+  var dots = document.querySelectorAll(".quote-dot");
+  if (slides.length > 1) {
+    var activeIndex = 0;
+    var carouselTimer = null;
+
+    function showSlide(i) {
+      slides.forEach(function (el, idx) {
+        el.classList.toggle("is-active", idx === i);
+      });
+      dots.forEach(function (el, idx) {
+        el.classList.toggle("is-active", idx === i);
+      });
+      activeIndex = i;
+    }
+
+    function nextSlide() {
+      showSlide((activeIndex + 1) % slides.length);
+    }
+
+    function startCarousel() {
+      if (reduceMotion) return;
+      stopCarousel();
+      carouselTimer = window.setInterval(nextSlide, 4500);
+    }
+    function stopCarousel() {
+      if (carouselTimer) window.clearInterval(carouselTimer);
+    }
+
+    dots.forEach(function (dot, idx) {
+      dot.addEventListener("click", function () {
+        showSlide(idx);
+        startCarousel();
+      });
+    });
+
+    startCarousel();
   }
 
   // ------------------------------------------------------------------
