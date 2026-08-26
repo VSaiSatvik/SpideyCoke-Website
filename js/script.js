@@ -257,6 +257,7 @@
       if (can.classList.contains("is-shaking")) return;
       can.classList.add("is-shaking");
       setTimeout(function () { can.classList.remove("is-shaking"); }, 600);
+      playFizzSound();
 
       var fizzEl = document.getElementById("fizz");
       if (fizzEl && !reduceMotion) {
@@ -342,6 +343,200 @@
     revealEls.forEach(function (el) { revealObserver.observe(el); });
   } else {
     revealEls.forEach(function (el) { el.classList.add("is-visible"); });
+  }
+
+  // ------------------------------------------------------------------
+  // Toast helper.
+  // ------------------------------------------------------------------
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function showToast(message) {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.add("is-visible");
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () {
+      toastEl.classList.remove("is-visible");
+    }, 2400);
+  }
+
+  // ------------------------------------------------------------------
+  // Sound toggle (persisted) + a synthesized "fizz-crack" via Web Audio,
+  // so no external audio file is needed.
+  // ------------------------------------------------------------------
+  var soundToggle = document.getElementById("soundToggle");
+  var soundEnabled = true;
+  try {
+    var savedSound = localStorage.getItem("crimson-sound");
+    soundEnabled = savedSound === null ? true : savedSound === "on";
+  } catch (e) {}
+
+  function applySoundState() {
+    if (!soundToggle) return;
+    soundToggle.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
+    soundToggle.setAttribute(
+      "aria-label",
+      soundEnabled ? "Mute sound effects" : "Unmute sound effects"
+    );
+  }
+  applySoundState();
+
+  if (soundToggle) {
+    soundToggle.addEventListener("click", function () {
+      soundEnabled = !soundEnabled;
+      applySoundState();
+      try { localStorage.setItem("crimson-sound", soundEnabled ? "on" : "off"); } catch (e) {}
+    });
+  }
+
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) audioCtx = new Ctx();
+    }
+    return audioCtx;
+  }
+
+  function playFizzSound() {
+    if (!soundEnabled) return;
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === "suspended") ctx.resume();
+
+    var now = ctx.currentTime;
+
+    // A short burst of filtered noise reads as a can-crack + fizz.
+    var bufferSize = ctx.sampleRate * 0.6;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    }
+    var noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    var filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(2200, now);
+    filter.frequency.exponentialRampToValueAtTime(900, now + 0.5);
+    filter.Q.value = 0.7;
+
+    var gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.35, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start(now);
+    noise.stop(now + 0.6);
+
+    // A quick low "thock" for the crack of the tab.
+    var osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+    var oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.25, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  // ------------------------------------------------------------------
+  // Share button: native share sheet where available, clipboard fallback.
+  // ------------------------------------------------------------------
+  var shareBtn = document.getElementById("shareBtn");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", function () {
+      var shareData = {
+        title: document.title,
+        text: "Crimson Cola — refreshment that swings in.",
+        url: window.location.href,
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(function () {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareData.url).then(function () {
+          showToast("Link copied to clipboard");
+        }).catch(function () {
+          showToast("Couldn't copy the link");
+        });
+      } else {
+        showToast("Copy this page's URL to share it");
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Nutrition Facts modal: accessible dialog with a real focus trap.
+  // ------------------------------------------------------------------
+  var nutritionTrigger = document.getElementById("nutritionTrigger");
+  var nutritionBackdrop = document.getElementById("nutritionBackdrop");
+  var nutritionModal = document.getElementById("nutritionModal");
+  var nutritionClose = document.getElementById("nutritionClose");
+  var lastFocusedEl = null;
+
+  function getFocusable(container) {
+    return Array.prototype.slice.call(
+      container.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      )
+    );
+  }
+
+  function openNutritionModal() {
+    if (!nutritionBackdrop) return;
+    lastFocusedEl = document.activeElement;
+    nutritionBackdrop.hidden = false;
+    requestAnimationFrame(function () {
+      nutritionBackdrop.classList.add("is-open");
+    });
+    document.body.style.overflow = "hidden";
+    var focusables = getFocusable(nutritionModal);
+    (focusables[0] || nutritionModal).focus();
+  }
+
+  function closeNutritionModal() {
+    if (!nutritionBackdrop) return;
+    nutritionBackdrop.classList.remove("is-open");
+    document.body.style.overflow = "";
+    window.setTimeout(function () {
+      nutritionBackdrop.hidden = true;
+    }, 250);
+    if (lastFocusedEl) lastFocusedEl.focus();
+  }
+
+  if (nutritionTrigger && nutritionBackdrop && nutritionModal) {
+    nutritionTrigger.addEventListener("click", openNutritionModal);
+    nutritionClose.addEventListener("click", closeNutritionModal);
+    nutritionBackdrop.addEventListener("click", function (e) {
+      if (e.target === nutritionBackdrop) closeNutritionModal();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (nutritionBackdrop.hidden) return;
+      if (e.key === "Escape") {
+        closeNutritionModal();
+        return;
+      }
+      if (e.key === "Tab") {
+        var focusables = getFocusable(nutritionModal);
+        if (!focusables.length) return;
+        var first = focusables[0];
+        var last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
   }
 
   // ------------------------------------------------------------------
