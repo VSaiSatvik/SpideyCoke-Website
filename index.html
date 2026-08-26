@@ -5,17 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crimson Cola — Web-Slinger Edition</title>
 <meta name="description" content="Crimson Cola: the fizz that swings. A city-inspired soda with a web-slinging mascot.">
+<meta name="theme-color" content="#0b0e1a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script>
+  /* Applied before paint to avoid a flash of the wrong theme. */
+  (function () {
+    try {
+      var saved = localStorage.getItem("crimson-theme");
+      var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+
 <!-- Ambient background layers -->
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
 <div class="bg-city" aria-hidden="true"></div>
 <div class="bg-grid" aria-hidden="true"></div>
 <div class="bg-glow" aria-hidden="true"></div>
+<div class="bg-grain" aria-hidden="true"></div>
 
 <!-- The web thread + hero mascot, tracks scroll -->
 <svg id="webLine" aria-hidden="true">
@@ -24,25 +41,78 @@
 
 <div id="hero-mascot" aria-hidden="true">
   <div class="msk-figure">
-    <svg viewBox="0 0 120 180" width="90" height="135">
-      <ellipse class="msk-shadow" cx="60" cy="172" rx="26" ry="6"></ellipse>
-      <!-- legs / arms -->
-      <path class="msk-limb" d="M60 70 C 30 78, 14 100, 10 132" />
-      <path class="msk-limb" d="M60 70 C 90 78, 106 100, 110 132" />
-      <path class="msk-limb" d="M60 96 C 40 110, 30 130, 34 158" />
-      <path class="msk-limb" d="M60 96 C 80 110, 90 130, 86 158" />
+    <svg viewBox="0 0 140 220" width="104" height="163">
+      <defs>
+        <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff5a63"/>
+          <stop offset="45%" stop-color="#d62839"/>
+          <stop offset="100%" stop-color="#8f1622"/>
+        </linearGradient>
+        <linearGradient id="limbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e23b47"/>
+          <stop offset="100%" stop-color="#8f1622"/>
+        </linearGradient>
+        <radialGradient id="headGrad" cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stop-color="#ff6b73"/>
+          <stop offset="55%" stop-color="#d62839"/>
+          <stop offset="100%" stop-color="#7f131e"/>
+        </radialGradient>
+        <radialGradient id="lensGrad" cx="35%" cy="30%" r="80%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="55%" stop-color="#e9ecf5"/>
+          <stop offset="100%" stop-color="#aab0c4"/>
+        </radialGradient>
+        <linearGradient id="emblemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#1a1e2e"/>
+          <stop offset="100%" stop-color="#0b0e1a"/>
+        </linearGradient>
+      </defs>
+
+      <ellipse class="msk-shadow" cx="70" cy="208" rx="30" ry="7"></ellipse>
+
+      <!-- back arm (reaching up toward the web line) -->
+      <path class="msk-limb msk-limb--back" d="M70 58 C 84 40, 92 22, 84 4" />
+      <path class="msk-limb msk-limb--back" d="M84 4 C 88 -2, 96 -2, 98 4" />
+
+      <!-- legs, one bent for a dynamic hang -->
+      <path class="msk-limb" d="M64 118 C 40 128, 20 148, 16 182" />
+      <path class="msk-limb" d="M76 118 C 96 132, 100 156, 82 186 C 78 192, 84 198, 92 196" />
+
+      <!-- front arm, bent across the body -->
+      <path class="msk-limb" d="M70 62 C 48 70, 34 84, 40 104 C 42 110, 52 112, 58 106" />
+
       <!-- torso -->
-      <path class="msk-body" d="M60 40 C 40 40, 34 62, 38 84 C 42 104, 78 104, 82 84 C 86 62, 80 40, 60 40 Z" />
-      <!-- web pattern on torso -->
+      <path class="msk-body" d="M70 46 C 46 46, 38 72, 42 96 C 45 116, 58 128, 70 128
+                                C 82 128, 95 116, 98 96 C 102 72, 94 46, 70 46 Z" />
+
+      <!-- shoulder / chest panel shading for a molded, muscular read -->
+      <path class="msk-shade" d="M70 50 C 58 50, 50 64, 50 80 C 50 96, 58 110, 70 114
+                                  C 70 92, 70 70, 70 50 Z" />
+      <path class="msk-highlight" d="M70 52 C 78 54, 84 66, 84 80 C 84 92, 80 102, 74 108" />
+
+      <!-- original chest emblem: a simple bold diamond mark, not a spider -->
+      <path class="msk-emblem" d="M70 78 L80 92 L70 112 L60 92 Z" />
+
+      <!-- fine irregular web threads across the suit, not a repeating grid -->
       <g class="msk-web-pattern">
-        <path d="M60 44 L60 100 M45 50 L60 68 L75 50 M40 68 L60 74 L80 68 M43 88 L60 80 L77 88" />
+        <path d="M70 48 L70 128 M46 66 L94 66 M42 88 L98 88 M50 108 L90 108" />
+        <path d="M48 52 L70 78 M92 52 L70 78 M44 100 L70 88 M96 100 L70 88" />
       </g>
-      <!-- head -->
-      <circle class="msk-head" cx="60" cy="24" r="20" />
-      <path class="msk-head-web" d="M60 4 L60 44 M40 24 L80 24 M46 8 L74 40 M74 8 L46 40" />
-      <!-- eyes -->
-      <path class="msk-eye" d="M44 20 C 48 12, 58 12, 60 20 C 58 26, 48 26, 44 20 Z" />
-      <path class="msk-eye" d="M76 20 C 72 12, 62 12, 60 20 C 62 26, 72 26, 76 20 Z" />
+
+      <!-- neck -->
+      <path class="msk-body" d="M62 40 L78 40 L76 52 L64 52 Z" />
+
+      <!-- head, slightly turned -->
+      <path class="msk-head" d="M70 4 C 54 4, 44 16, 45 32 C 46 46, 58 54, 70 54
+                                 C 82 54, 94 46, 95 32 C 96 16, 86 4, 70 4 Z" />
+      <path class="msk-head-shade" d="M70 6 C 60 8, 52 18, 52 30 C 52 40, 58 48, 66 51 C 63 38, 64 20, 70 6 Z" />
+      <path class="msk-head-web" d="M70 2 L70 54 M47 28 L93 28 M52 12 L86 44 M88 12 L54 44 M50 40 L90 18 M50 18 L90 40" />
+
+      <!-- expressive, slightly asymmetric lenses -->
+      <path class="msk-eye" d="M50 26 C 52 15, 65 12, 69 22 C 70 28, 66 33, 58 33 C 53 33, 49 30, 50 26 Z" />
+      <path class="msk-eye msk-eye--r" d="M90 26 C 88 15, 75 12, 71 22 C 70 28, 74 33, 82 33 C 87 33, 91 30, 90 26 Z" />
+      <path class="msk-eye-shine" d="M56 20 C 58 18, 61 18, 62 20" />
+      <path class="msk-eye-shine" d="M84 20 C 82 18, 79 18, 78 20" />
     </svg>
   </div>
 </div>
@@ -52,19 +122,44 @@
   <a class="brand" href="#top">
     <span class="brand-mark">CRIMSON</span><span class="brand-mark brand-mark--script">Cola</span>
   </a>
-  <nav class="nav-links">
+  <nav class="nav-links" aria-label="Primary">
     <a href="#flavors">Flavors</a>
     <a href="#story">Origin</a>
     <a href="#swing">The Swing</a>
     <a href="#find">Find It</a>
   </nav>
-  <a class="nav-cta" href="#find">Grab a Can</a>
+  <div class="nav-actions">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.5"/>
+        <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke-linecap="round"/>
+      </svg>
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>
+      </svg>
+    </button>
+    <a class="nav-cta" href="#find">Grab a Can</a>
+    <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 
-<main id="top">
+<!-- Mobile nav panel -->
+<div class="mobile-nav" id="mobileNav" hidden>
+  <a href="#flavors">Flavors</a>
+  <a href="#story">Origin</a>
+  <a href="#swing">The Swing</a>
+  <a href="#find">Find It</a>
+  <a class="mobile-nav-cta" href="#find">Grab a Can</a>
+</div>
+
+<main id="top" tabindex="-1">
+  <span id="main-content"></span>
 
   <!-- HERO -->
   <section class="hero">
+    <div class="bg-sparks" id="bgSparks" aria-hidden="true"></div>
     <div class="hero-copy">
       <p class="eyebrow">Uptown fizz, downtown taste</p>
       <h1>Refreshment<br>that <em>swings</em> in.</h1>
@@ -75,16 +170,29 @@
       </div>
     </div>
     <div class="hero-can">
-      <div class="can">
-        <div class="can-top"></div>
-        <div class="can-body">
-          <span class="can-brand">CRIMSON</span>
-          <span class="can-brand can-brand--script">Cola</span>
-          <div class="can-web-etch"></div>
+      <div class="can-stage" id="canStage">
+        <div class="can" id="can">
+          <div class="can-top">
+            <div class="can-tab"></div>
+            <div class="can-top-rim"></div>
+          </div>
+          <div class="can-body">
+            <div class="can-shade can-shade--left"></div>
+            <div class="can-shade can-shade--right"></div>
+            <div class="can-highlight"></div>
+            <div class="can-web-etch"></div>
+            <span class="can-brand">CRIMSON</span>
+            <span class="can-brand can-brand--script">Cola</span>
+            <div class="can-droplets" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="can-bottom"></div>
         </div>
-        <div class="can-bottom"></div>
+        <div class="can-reflection" aria-hidden="true"></div>
       </div>
       <div class="fizz" id="fizz"></div>
+      <p class="can-hint">Click the can</p>
     </div>
   </section>
 
@@ -139,22 +247,22 @@
     <p class="eyebrow">Lineup</p>
     <h2>Four flavors. One skyline.</h2>
     <div class="flavor-grid">
-      <article class="flavor-card fc--classic">
+      <article class="flavor-card fc--classic reveal" style="transition-delay:0ms">
         <div class="flavor-tag">No. 01</div>
         <h3>Classic Crimson</h3>
         <p>The original rooftop recipe. Cane sugar, cola nut, a whisper of citrus peel.</p>
       </article>
-      <article class="flavor-card fc--zero">
+      <article class="flavor-card fc--zero reveal" style="transition-delay:80ms">
         <div class="flavor-tag">No. 02</div>
         <h3>Midnight Zero</h3>
         <p>All the snap, none of the sugar. Built for the late patrol.</p>
       </article>
-      <article class="flavor-card fc--orange">
+      <article class="flavor-card fc--orange reveal" style="transition-delay:160ms">
         <div class="flavor-tag">No. 03</div>
         <h3>Blood Orange Sting</h3>
         <p>A sharper citrus edge, cut with real blood orange juice.</p>
       </article>
-      <article class="flavor-card fc--lime">
+      <article class="flavor-card fc--lime reveal" style="transition-delay:240ms">
         <div class="flavor-tag">No. 04</div>
         <h3>Alley Lime</h3>
         <p>Tart lime and a cooler finish. Best served straight off the fire escape.</p>
@@ -167,27 +275,40 @@
     <p class="eyebrow">Around Town</p>
     <h2>Spotted on the way down.</h2>
     <div class="bento-grid">
-      <div class="bento-cell bc-1">
+      <div class="bento-cell bc-1 reveal" style="transition-delay:0ms">
         <span class="bc-label">Rooftop Vending</span>
         <p>Cold cans, forty floors up, no elevator required.</p>
       </div>
-      <div class="bento-cell bc-2">
+      <div class="bento-cell bc-2 reveal" style="transition-delay:100ms">
         <span class="bc-label">Corner Store Crate</span>
         <p>Stacked fresh every morning before the trains start running.</p>
       </div>
-      <div class="bento-cell bc-3">
+      <div class="bento-cell bc-3 reveal" style="transition-delay:200ms">
         <span class="bc-label">Alleyway Cooler</span>
         <p>The unofficial break spot between patrols.</p>
       </div>
     </div>
   </section>
 
-  <!-- TESTIMONIAL -->
+  <!-- TESTIMONIAL CAROUSEL -->
   <section class="quote-section">
-    <blockquote>
+    <div class="quote-slide is-active">
       <p>"Cracked one open mid-swing. Didn't spill a drop. That's the whole pitch."</p>
       <cite>Neighborhood Regular, Queens</cite>
-    </blockquote>
+    </div>
+    <div class="quote-slide">
+      <p>"Colder than the fire escape in January, and twice as reliable."</p>
+      <cite>Rooftop Regular, Brooklyn</cite>
+    </div>
+    <div class="quote-slide">
+      <p>"I keep a six-pack by the window. You never know when you'll need one."</p>
+      <cite>Corner Store Owner, Queens</cite>
+    </div>
+    <div class="quote-dots" id="quoteDots" aria-hidden="true">
+      <button class="quote-dot is-active" data-index="0" aria-label="Show testimonial 1"></button>
+      <button class="quote-dot" data-index="1" aria-label="Show testimonial 2"></button>
+      <button class="quote-dot" data-index="2" aria-label="Show testimonial 3"></button>
+    </div>
   </section>
 
   <!-- FIND IT / CTA -->
@@ -214,6 +335,10 @@
     <p class="footer-copy">© 2026 Crimson Cola Co.</p>
   </div>
 </footer>
+
+<button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 
 <script src="js/script.js"></script>
 </body>
