@@ -138,6 +138,25 @@
         <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>
       </svg>
     </button>
+    <button class="icon-btn" id="soundToggle" type="button" aria-label="Mute sound effects" aria-pressed="true">
+      <svg class="sound-icon sound-icon--on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M4 9v6h4l5 4V5L8 9H4Z"/>
+        <path d="M16.5 8.5a5 5 0 0 1 0 7" stroke-linecap="round"/>
+        <path d="M19 6a9 9 0 0 1 0 12" stroke-linecap="round"/>
+      </svg>
+      <svg class="sound-icon sound-icon--off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M4 9v6h4l5 4V5L8 9H4Z"/>
+        <path d="M16 9l5 6M21 9l-5 6" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="shareBtn" type="button" aria-label="Share this page">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <circle cx="18" cy="5" r="2.5"/>
+        <circle cx="6" cy="12" r="2.5"/>
+        <circle cx="18" cy="19" r="2.5"/>
+        <path d="M8.2 10.7l7.6-4.4M8.2 13.3l7.6 4.4" stroke-linecap="round"/>
+      </svg>
+    </button>
     <a class="nav-cta" href="#find">Grab a Can</a>
     <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
       <span></span><span></span><span></span>
@@ -193,6 +212,7 @@
       </div>
       <div class="fizz" id="fizz"></div>
       <p class="can-hint">Click the can</p>
+      <button class="nutrition-trigger" id="nutritionTrigger" type="button">View Nutrition Facts</button>
     </div>
   </section>
 
@@ -335,6 +355,37 @@
     <p class="footer-copy">© 2026 Crimson Cola Co.</p>
   </div>
 </footer>
+
+<!-- Toast notification (share confirmation, etc.) -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Nutrition Facts modal -->
+<div class="modal-backdrop" id="nutritionBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="nutritionTitle" id="nutritionModal">
+    <button class="modal-close" id="nutritionClose" type="button" aria-label="Close nutrition facts">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+    </button>
+    <div class="nutrition-label">
+      <h2 id="nutritionTitle">Nutrition Facts</h2>
+      <p class="nutrition-serving">Serving Size 1 can (355 mL)<br>Servings Per Container 1</p>
+      <div class="nutrition-rule nutrition-rule--thick"></div>
+      <p class="nutrition-cal"><strong>Amount Per Serving</strong></p>
+      <p class="nutrition-cal-row"><strong>Calories</strong> <span>140</span></p>
+      <div class="nutrition-rule"></div>
+      <p class="nutrition-dv-head"><span></span><strong>% Daily Value*</strong></p>
+      <ul class="nutrition-list">
+        <li><strong>Total Fat</strong> 0g <span>0%</span></li>
+        <li><strong>Sodium</strong> 45mg <span>2%</span></li>
+        <li><strong>Total Carbohydrate</strong> 39g <span>14%</span></li>
+        <li class="nutrition-sub">Total Sugars 39g</li>
+        <li><strong>Protein</strong> 0g <span>0%</span></li>
+      </ul>
+      <div class="nutrition-rule nutrition-rule--thick"></div>
+      <p class="nutrition-footnote">*The % Daily Value tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</p>
+      <p class="nutrition-fine">Fictional example data for the "Crimson Cola" concept brand — not a real product.</p>
+    </div>
+  </div>
+</div>
 
 <button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">
   <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
